@@ -20,6 +20,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 
 Route::group(['middleware' => ['jwt']], function() {
 	Route::namespace('App\Http\Controllers')->group(static function() {
+		
 	    Route::post('/logout', 'AuthController@logout');
     	Route::post('/refresh', 'AuthController@refresh');
     	Route::get('/me', 'AuthController@me');
@@ -34,17 +35,23 @@ Route::group(['middleware' => ['jwt']], function() {
 		});
 
 		Route::prefix('banks')->group(function () {
-	    	Route::get('/', 'BankController@index');
 	   		Route::post('/', 'BankController@store');
 	   		Route::post('/{id}', 'BankController@update');
 			Route::get('/{id}', 'BankController@show');
 	   		Route::delete('/{id}', 'BankController@destroy');
 		});
-
 	});
-
 });
 
 Route::namespace('App\Http\Controllers')->group(static function() {
 	Route::post('/login', 'AuthController@login');
+
+	Route::prefix('banks')->group(function () {
+    	Route::get('/', 'BankController@index');
+    	Route::get('/{country}/byCountry', 'BankController@byCountry');
+   	});
+
+	Route::prefix('countries')->group(function () {
+    	Route::get('/', 'CountryController@index');
+   	});
 });

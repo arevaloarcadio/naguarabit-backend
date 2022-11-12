@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Bank;
+use App\Models\Country;
 use App\Helpers\Api as ApiHelper;
 use App\Traits\ApiController;
 use App\Http\Resources\Data;
@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use JWTAuth;
 
-class BankController extends Controller
+class CountryController extends Controller
 {
     use ApiController;
     /**
@@ -25,9 +25,9 @@ class BankController extends Controller
 
         try{
 
-            $banks = Bank::orderBy('codpais')->orderBy('nombre')->get();
+            $countries = Country::orderBy('nombre')->get();
 
-            return response()->json(['records' => $banks]);
+            return response()->json(['records' => $countries]);
           ApiHelper::success($resource);
         }catch(\Exception $e){
           ApiHelper::setException($resource, $e);
@@ -36,22 +36,6 @@ class BankController extends Controller
         return $this->sendResponse($resource);
     }
 
-    public function byCountry(Request $request,$country)
-    {
-        $resource = ApiHelper::resource();
-
-        try{
-
-            $banks = Bank::where('codpais',$country)->orderBy('nombre')->get();
-
-            return response()->json(['records' => $banks]);
-          ApiHelper::success($resource);
-        }catch(\Exception $e){
-          ApiHelper::setException($resource, $e);
-        }
-
-        return $this->sendResponse($resource);
-    }
 
     /**
      * Store a newly created resource in storage.
@@ -79,16 +63,16 @@ class BankController extends Controller
                 return $this->sendResponse($resource);
             }
 
-            $bank = new Bank;
-            $bank->code = $request->code;
-            $bank->name = $request->name;
-            $bank->country = $request->country;
-            $bank->type_payment = $request->type_payment;
-            $bank->observation = $request->observation;
-            $bank->save();
+            $country = new Country;
+            $country->code = $request->code;
+            $country->name = $request->name;
+            $country->country = $request->country;
+            $country->type_payment = $request->type_payment;
+            $country->observation = $request->observation;
+            $country->save();
             
             
-            $data  =  new Data($bank);
+            $data  =  new Data($country);
             $resource = array_merge($resource, $data->toArray($request));
           ApiHelper::success($resource);
         }catch(\Exception $e){
@@ -113,10 +97,10 @@ class BankController extends Controller
 
       try{
 
-          $bank = Bank::find($id);
+          $country = Country::find($id);
 
-          $data  =  new Data($bank);
-          $resource = array_merge($resource, ['data' => $bank]);
+          $data  =  new Data($country);
+          $resource = array_merge($resource, ['data' => $country]);
         ApiHelper::success($resource);
       }catch(\Exception $e){
         ApiHelper::setException($resource, $e);
@@ -151,15 +135,15 @@ class BankController extends Controller
                 return $this->sendResponse($resource);
             }
 
-            $bank = Bank::find($id);
-            $bank->code = $request->code;
-            $bank->name = $request->name;
-            $bank->country = $request->country;
-            $bank->type_payment = $request->type_payment;
-            $bank->observation = $request->observation;
-            $bank->save();
+            $country = Country::find($id);
+            $country->code = $request->code;
+            $country->name = $request->name;
+            $country->country = $request->country;
+            $country->type_payment = $request->type_payment;
+            $country->observation = $request->observation;
+            $country->save();
 
-            $data  =  new Data($bank);
+            $data  =  new Data($country);
             $resource = array_merge($resource, $data->toArray($request));
           ApiHelper::success($resource);
         }catch(\Exception $e){
@@ -181,7 +165,7 @@ class BankController extends Controller
 
         try{
 
-            $bank = Bank::where('id',$id)->update(['is_active' => false]);
+            $country = Country::where('id',$id)->update(['is_active' => false]);
 
             $resource = array_merge($resource, ['data' => []]);
           ApiHelper::success($resource);
@@ -198,7 +182,7 @@ class BankController extends Controller
 
         try{
 
-            $bank = Bank::where('id',$id)->update(['is_active' => true]);
+            $country = Country::where('id',$id)->update(['is_active' => true]);
 
             $resource = array_merge($resource, ['data' => []]);
           ApiHelper::success($resource);

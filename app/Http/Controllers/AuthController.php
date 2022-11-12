@@ -36,13 +36,13 @@ class AuthController extends Controller
 
         $credentials = $request->only('email', 'password');
 
-        $user = User::where('email',$request->email)->where('is_active',true)->first();
+        $user = User::where('email',$request->email)->where('activo',true)->first();
 
         try {
 
             if (!$token = JWTAuth::attempt($credentials)) {
                      
-                $user = User::where('user_name',$request->email)->where('is_active',true)->first();
+                $user = User::where('user_name',$request->email)->where('activo',true)->first();
                
                 if (!is_null($user)) {
                     
