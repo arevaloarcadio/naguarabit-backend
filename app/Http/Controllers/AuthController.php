@@ -33,7 +33,6 @@ class AuthController extends Controller
             'password' => ['required', 'string'],
         ]);
       
-
         $credentials = $request->only('email', 'password');
 
         $user = User::where('email',$request->email)->where('activo',true)->first();
@@ -41,24 +40,9 @@ class AuthController extends Controller
         try {
 
             if (!$token = JWTAuth::attempt($credentials)) {
-                     
-                $user = User::where('user_name',$request->email)->where('activo',true)->first();
-               
-                if (!is_null($user)) {
-                    
-                    $credentials = [
-                        'email' => $user->email,
-                        'password' => $request->password
-                    ];
-                    
-                    if (!$token = JWTAuth::attempt($credentials)) {
-                       return response()->json(['error' => 'invalid_credentials'], 400);   
-                    }
-                
-                }else{
-                    return response()->json(['error' => 'invalid_credentials'], 400); 
-                }
+                return response()->json(['error' => 'invalid_credentials'], 400); 
             }
+
         } catch (JWTException $e) {
             return response()->json(['error' => 'could_not_create_token'], 500);
         }
