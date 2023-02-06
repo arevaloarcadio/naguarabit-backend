@@ -37,7 +37,7 @@ Route::group(['middleware' => ['jwt']], function() {
 		Route::prefix('banks')->group(function () {
 	   		Route::post('/', 'BankController@store');
 	   		Route::post('/{id}', 'BankController@update');
-			Route::get('/{id}', 'BankController@show');
+			
 	   		Route::delete('/{id}', 'BankController@destroy');
 		});
 	});
@@ -48,10 +48,18 @@ Route::namespace('App\Http\Controllers')->group(static function() {
 
 	Route::prefix('banks')->group(function () {
     	Route::get('/', 'BankController@index');
+    	Route::get('/{id}', 'BankController@show');
     	Route::get('/{country}/byCountry', 'BankController@byCountry');
    	});
 
 	Route::prefix('countries')->group(function () {
     	Route::get('/', 'CountryController@index');
+   	});
+
+   	Route::prefix('transactions')->group(function () {
+    	Route::get('/rates', 'TransactionController@get_rate');
+    	Route::get('/rates/{currency_id}', 'TransactionController@get_rate_by_currency');
+    	Route::post('/', 'TransactionController@store');
+    	Route::post('/destinationPayments', 'TransactionController@store_destination_payments');
    	});
 });

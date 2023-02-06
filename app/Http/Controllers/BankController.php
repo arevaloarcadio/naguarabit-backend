@@ -53,6 +53,23 @@ class BankController extends Controller
         return $this->sendResponse($resource);
     }
 
+    public function byCountryUser(Request $request,$country)
+    {
+        $resource = ApiHelper::resource();
+
+        try{
+
+            $banks = Bank::where('codpais',$country)->orderBy('nombre')->get();
+
+            return response()->json(['records' => $banks]);
+          ApiHelper::success($resource);
+        }catch(\Exception $e){
+          ApiHelper::setException($resource, $e);
+        }
+
+        return $this->sendResponse($resource);
+    }
+
     /**
      * Store a newly created resource in storage.
      *
@@ -113,10 +130,9 @@ class BankController extends Controller
 
       try{
 
-          $bank = Bank::find($id);
+          $bank = Bank::where('codigo',$id)->first();
 
-          $data  =  new Data($bank);
-          $resource = array_merge($resource, ['data' => $bank]);
+          return response()->json(['records' => $bank]);
         ApiHelper::success($resource);
       }catch(\Exception $e){
         ApiHelper::setException($resource, $e);
