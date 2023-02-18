@@ -49,7 +49,7 @@ Route::namespace('App\Http\Controllers')->group(static function() {
 	Route::prefix('banks')->group(function () {
     	Route::get('/', 'BankController@index');
     	Route::get('/{id}', 'BankController@show');
-    	Route::get('/{country}/byCountry', 'BankController@byCountry');
+    	Route::get('/byCountry/{country}', 'BankController@byCountry');
    	});
 
 	Route::prefix('countries')->group(function () {

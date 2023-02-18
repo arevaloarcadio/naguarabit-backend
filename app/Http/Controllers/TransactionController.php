@@ -121,7 +121,7 @@ class TransactionController extends Controller
 
     			curl_close($ch); 
     			
-    			return response()->json(['records' => $data]);
+    			return response()->json(['records' => [json_decode($data)]]);
 		    
         }catch(\Exception $e){
           	ApiHelper::setException($resource, $e);
@@ -149,7 +149,7 @@ class TransactionController extends Controller
 
         	curl_close($ch); 
         	
-        	return response()->json(['records' => $data]);
+        	return response()->json(['records' => [json_decode($data)]]);
         }catch(\Exception $e){
           	ApiHelper::setException($resource, $e);
         }

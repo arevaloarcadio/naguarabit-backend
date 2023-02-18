@@ -130,9 +130,28 @@ class BankController extends Controller
 
       try{
 
-          $bank = Bank::where('codigo',$id)->first();
-
-          return response()->json(['records' => $bank]);
+          $bank = Bank::select(
+                'formapago_origen.id',
+                'formapago_origen.codigo',
+                'formapago_origen.nombre',
+                'formapago_origen.nombretitular',
+                'formapago_origen.doctitular',
+                'formapago_origen.nrocuenta',
+                'formapago_origen.tipocuenta',
+                'formapago_origen.nombre_largo as descripcion',
+                'formapago_origen.tipocuenta_desc',
+                'formapago_origen.ciudad',
+                'banks_pais.codpais',
+                'banks_pais.tipo_pago',
+                'banks_pais.nombre as nombrebank'
+            )
+            ->join('formapago_origen','formapago_origen.cod_banco','banks_pais.codigo')
+            ->where('formapago_origen.activo',1)
+            ->where('banks_pais.activo',1)
+            ->where('banks_pais.codigo',$id)
+            ->first();
+            
+            return response()->json(['records' => [$bank]]);
         ApiHelper::success($resource);
       }catch(\Exception $e){
         ApiHelper::setException($resource, $e);
