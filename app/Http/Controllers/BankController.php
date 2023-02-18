@@ -133,7 +133,7 @@ class BankController extends Controller
 
       try{
 
-          $bank = Bank::select(
+        $bank = Bank::select(
                 'formapago_origen.id',
                 'formapago_origen.codigo',
                 'formapago_origen.nombre',

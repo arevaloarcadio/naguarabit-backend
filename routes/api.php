@@ -57,9 +57,10 @@ Route::namespace('App\Http\Controllers')->group(static function() {
    	});
 
    	Route::prefix('transactions')->group(function () {
+    	Route::get('/resumen/{id}', 'TransactionController@get_resumen');
     	Route::get('/rates', 'TransactionController@get_rate');
     	Route::get('/rates/{currency_id}', 'TransactionController@get_rate_by_currency');
-    	Route::post('/', 'TransactionController@store');
+    	Route::post('/originPayments', 'TransactionController@store_payments_origin');
     	Route::post('/destinationPayments', 'TransactionController@store_destination_payments');
    	});
 });

@@ -8,6 +8,7 @@ use App\Helpers\Api as ApiHelper;
 use App\Traits\ApiController;
 use App\Http\Resources\Data;
 use Illuminate\Support\Facades\Auth;
+use DB;
 
 class TransactionController extends Controller
 {	
@@ -36,11 +37,15 @@ class TransactionController extends Controller
             $transaction = Transaction::where('id',$transaction->id)->first();
            	
            	return response()->json([
-           		'resultado' => 'EXITO',
-           		'mensaje' => 'Datos de transacción guardados', 
-           		'id_trans' => $transaction->id,
-           		'transaction' => $transaction
-           	]);
+                'records' => [ 
+                    [
+           		       'resultado' => 'EXITO',
+           		       'mensaje' => 'Datos de transacción guardados', 
+           		       'id_trans' => $transaction->id,
+           		       'transaction' => $transaction
+           	        ]
+                ]
+            ]);
 
         }catch(\Exception $e){
           ApiHelper::setException($resource, $e);
@@ -88,11 +93,15 @@ class TransactionController extends Controller
             }
 
             return response()->json([
-              'resultado' => 'EXITO',
-              'mensaje' => 'Datos de transacción guardados', 
-              'id_pago_destino' => $destination_payments->id,
-              'destination_payments' => $destination_payments,
-              'destination_account' => $destination_account
+                'records' => [ 
+                    [
+                        'resultado' => 'EXITO',
+                        'mensaje' => 'Datos de transacción guardados', 
+                        'id_pago_destino' => $destination_payments->id,
+                        'destination_payments' => $destination_payments,
+                        'destination_account' => $destination_account
+                    ]
+                ]
             ]);
 
         }catch(\Exception $e){
@@ -128,6 +137,45 @@ class TransactionController extends Controller
         }
 	
 	    return $this->sendResponse($resource);
+    }
+
+    public function get_resumen(Request $request,$id)
+    {
+        $resource = ApiHelper::resource();
+
+        try{
+
+            $transaction = Transaction::select(
+                    'users.nombre as user_nombre',
+                    'pais.nombre as origen_pais_nombre',
+                    'p.nombre as destino_pais_nombre',
+                    'pais.cod_moneda as origen_cod_moneda',
+                    'p.cod_moneda as destino_cod_moneda',
+                    'transacciones.*',
+                    'estatus.descripcion as estatus_desc',
+                    'estatus.detalles as status_detalles',
+                    DB::raw("LPAD(transacciones.id, 4, '0') as referencia"),
+                    'transacciones.id as id'
+                )
+                ->join('users','users.login','transacciones.login')
+                ->leftJoin('estatus','transacciones.status','estatus.codigo')
+                ->leftJoin('pais','transacciones.origen_codpais','pais.codigo')
+                ->leftJoin(DB::raw('(select * from pais) as p'),'transacciones.destino_codpais','p.codigo')
+                ->where('transacciones.id',$id)
+                ->first()
+                ->toArray();
+                
+            return response()->json(['records' => 
+                [
+                    $transaction    
+                ]
+            ]);
+            
+        }catch(\Exception $e){
+            ApiHelper::setException($resource, $e);
+        }
+    
+        return $this->sendResponse($resource);
     }
 
     public function get_rate_by_currency(Request $request,$currency_id)
