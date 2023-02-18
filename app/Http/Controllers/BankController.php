@@ -97,7 +97,10 @@ class BankController extends Controller
             }
 
             $bank = new Bank;
+            //TODO. si se cambia codigo de un banco debe cambiarse su uso en todas las transacciones y pagos relacionados
+            //lo mas sano es que el api no cambie codigo de banco si ya tiene transacciones relacionadas
             $bank->code = $request->code;
+
             $bank->name = $request->name;
             $bank->country = $request->country;
             $bank->type_payment = $request->type_payment;
