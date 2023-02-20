@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Country;
+use App\Models\EntityComment;
 use App\Helpers\Api as ApiHelper;
 use App\Traits\ApiController;
 use App\Http\Resources\Data;
@@ -225,8 +226,8 @@ class CountryController extends Controller
         $country = Country::find($id);
         $comment = $request->observation;
         
-        $EntitiyComment = new EntitiyComment();
-        $entityComment->save();
+        $comment = new EntityComment();
+        //$comment->save();
   
         $data  =  new Data($country);
         $resource = array_merge($resource, ['data' => $country]);
@@ -239,4 +240,3 @@ class CountryController extends Controller
 
   
 }
-0
