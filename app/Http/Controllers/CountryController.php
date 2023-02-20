@@ -136,9 +136,16 @@ class CountryController extends Controller
             }
 
             $country = Country::find($id);
+
+            //TODO. mejora: IMPEDIR la actualizacion del codigo del banco solo cuando tiene transacciones relacionadas
             $country->code = $request->code;
+
             $country->name = $request->name;
+
+           //TODO. mejora. IMPEDIR actualizacion del pais del banco cuando YA TIENE transacciones relacionadas
+           //si el banco fue registrado en un pais equivocado, debe borrarse
             $country->country = $request->country;
+
             $country->type_payment = $request->type_payment;
             $country->observation = $request->observation;
             $country->save();
@@ -182,14 +189,54 @@ class CountryController extends Controller
 
         try{
 
-            $country = Country::where('id',$id)->update(['is_active' => true]);
+            $country = Country::where('id',$id);
+            $country->update(['is_active' => true]);
 
             $resource = array_merge($resource, ['data' => []]);
-          ApiHelper::success($resource);
+            ApiHelper::success($resource);
         }catch(\Exception $e){
           ApiHelper::setException($resource, $e);
         }
 
         return $this->sendResponse($resource);
     }
+
+    public function activeOff($id)
+    {
+        $resource = ApiHelper::resource();
+        try{
+          
+          $country = Country::where('id',$id);
+          $country->update(['is_active' => false]);
+          $resource = array_merge($resource, ['data' => []]);
+          ApiHelper::success($resource);
+        
+        }catch(\Exception $e){
+          ApiHelper::setException($resource, $e);
+        }
+
+        return $this->sendResponse($resource);
+    }
+
+    //TODO.
+    // MEJORA: agregar observaciones del banco en tabla aparte, llamada entity_comment
+    public function addComment(Request $request, $id){
+      try{
+        $country = Country::find($id);
+        $comment = $request->observation;
+        
+        $EntitiyComment = new EntitiyComment();
+        $entityComment->save();
+  
+        $data  =  new Data($country);
+        $resource = array_merge($resource, ['data' => $country]);
+        ApiHelper::success($resource);
+      }catch(\Exception $e){
+        ApiHelper::setException($resource, $e);
+      }
+  
+    }
+
+  
 }
+0

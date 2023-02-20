@@ -31,6 +31,8 @@ class TransactionController extends Controller
             $transaction->tasa_dolar_destino = $request['tasa_destino'];
             $transaction->id_formapago_origen = $request['origen']['id_formapago'];
             $transaction->status_PO = 'OK';
+            //TODO. cuando se registra inicialmente el pago en origen, el pago en destino queda pendiente, revisar en el comentario de tabla.campo en cual estado debe estar
+            //creo que es ''
             $transaction->status_PD = 'PD_OK';
             $transaction->save();
 
@@ -40,7 +42,7 @@ class TransactionController extends Controller
                 'records' => [ 
                     [
            		       'resultado' => 'EXITO',
-           		       'mensaje' => 'Datos de transacción guardados', 
+           		       'mensaje' => 'Se grabo una nueva operación. Numero de transaccion: ' . $transaction->id, 
            		       'id_trans' => $transaction->id,
            		       'transaction' => $transaction
            	        ]
@@ -92,11 +94,20 @@ class TransactionController extends Controller
                 $destination_account->save();
             }
 
+            //TODO. mejoras de funcionalidad:
+            //1. asociar la transaccion con el pago destino recien grabado, estableciendo relacion hasMany Transaccion->hasMany(DestinationPayments)
+            //la idea es que una transaccion pueda relacionarse con 2 o mas pagos-destino, para ahorrar tiempo a clientes, y por consiguiente a operadores, etc.
+
+            //2. aqui se debe buscar la transaccion relacionada y actualizar estado del Pago destino
+            $operacion = Transaction::find($destination_payments->id_transaccion);
+            $operacion->status_PD = 'PD_';
+            $operacion->save();
+
             return response()->json([
                 'records' => [ 
                     [
                         'resultado' => 'EXITO',
-                        'mensaje' => 'Datos de transacción guardados', 
+                        'mensaje' => 'Datos de transacción guardados. Se registra el pago en destino elegido', 
                         'id_pago_destino' => $destination_payments->id,
                         'destination_payments' => $destination_payments,
                         'destination_account' => $destination_account
