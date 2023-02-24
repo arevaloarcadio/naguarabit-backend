@@ -62,5 +62,6 @@ Route::namespace('App\Http\Controllers')->group(static function() {
     	Route::get('/rates/{currency_id}', 'TransactionController@get_rate_by_currency');
     	Route::post('/originPayments', 'TransactionController@store_payments_origin');
     	Route::post('/destinationPayments', 'TransactionController@store_destination_payments');
+		Route::post('/attachment', 'TransactionController@uploads_attachment');
    	});
 });

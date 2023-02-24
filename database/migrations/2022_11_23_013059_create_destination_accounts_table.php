@@ -16,7 +16,7 @@ class CreateDestinationAccountsTable extends Migration
         //account_destiny
         Schema::create('cuentas_destino', function (Blueprint $table) {
             $table->id();
-            $table->string('cod_banco')->unique();
+            $table->string('cod_banco');
             $table->string('nrocta')->unique();
             $table->string('tipo_cta');
             $table->string('doctitular');

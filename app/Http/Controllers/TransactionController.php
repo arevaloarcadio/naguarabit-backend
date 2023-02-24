@@ -3,7 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\{DestinationAccount,DestinationPayments,Transaction};
+use App\Models\{DestinationAccount,DestinationPayments,Transaction,Attachment};
+use Illuminate\Support\Facades\Validator;
 use App\Helpers\Api as ApiHelper;
 use App\Traits\ApiController;
 use App\Http\Resources\Data;
@@ -128,20 +129,20 @@ class TransactionController extends Controller
 
         try{
 
-          $ch = curl_init();
-    			curl_setopt($ch, CURLOPT_URL, 'https://api.yadio.io/json'); 
-    			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true); 
-    			curl_setopt($ch, CURLOPT_HEADER, 0); 
-    			$data = curl_exec($ch); 
-    			
-    			if($data === false)
-    			{
-    			    return response()->json(['error' => curl_error($ch)],500);
-    			}
+            $ch = curl_init();
+			curl_setopt($ch, CURLOPT_URL, 'https://api.yadio.io/json'); 
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true); 
+			curl_setopt($ch, CURLOPT_HEADER, 0); 
+			$data = curl_exec($ch); 
+			
+			if($data === false)
+			{
+			    return response()->json(['error' => curl_error($ch)],500);
+			}
 
-    			curl_close($ch); 
-    			
-    			return response()->json(['records' => [json_decode($data)]]);
+			curl_close($ch); 
+			
+			return response()->json(['records' => [json_decode($data)]]);
 		    
         }catch(\Exception $e){
           	ApiHelper::setException($resource, $e);
@@ -195,7 +196,7 @@ class TransactionController extends Controller
 
         try{
 
-          $ch = curl_init();
+            $ch = curl_init();
         	curl_setopt($ch, CURLOPT_URL, 'https://api.yadio.io/rate/'.$currency_id); 
         	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true); 
         	curl_setopt($ch, CURLOPT_HEADER, 0); 
@@ -215,4 +216,58 @@ class TransactionController extends Controller
 	
 	    return $this->sendResponse($resource);
     }
+
+    public function uploads_attachment(Request $request)
+    {
+        $resource = ApiHelper::resource();
+
+        $validator = Validator::make($request->all(), [
+            'transaccion_id' => 'required|numeric|exists:transacciones,id',
+            'file' => ['required', 'file'],
+            'type' => 'required|in:source,destiny'
+        ]);
+        
+        try{
+            
+            if($validator->fails()){
+                ApiHelper::setError($resource, 0, 422, $validator->errors());
+                return $this->sendResponse($resource);
+            }
+            
+            $transaction = Transaction::find($request->transaccion_id);
+            $type = $request->type;
+
+            $cod = Attachment::where('transaccion_id',$request->transaccion_id)
+                ->where('type',$type)
+                ->count() + 1;
+           
+            $attachment = new Attachment;
+            $attachment->path = $this->uploadFile($request->file('file'),$transaction,$type,$cod);
+            $attachment->transaccion_id  = $request->transaccion_id;
+            $attachment->type = $type;
+            $attachment->save();
+            
+            return response()->json(['records' => $attachment]);
+        }catch(\Exception $e){
+            ApiHelper::setException($resource, $e);
+        }
+    
+        return $this->sendResponse($resource);
+    }
+
+    public function uploadFile($file,$transaction,$type,$cod)
+    {
+        $path = null;
+
+        if ($file) {
+            $picture = $cod.'_'.$transaction->origen_codpais.$transaction->destino_codpais.'_'.date('dmY').'.'.$file->getClientOriginalExtension();
+            $destinationPath = storage_path('app/storage/comprobantes/'.$transaction->id.'/'.$type.'/');
+            $path = '/storage/comprobantes/'.$transaction->id.'/'.$type.'/'.$picture;
+            $move = $file->move($destinationPath, $picture);
+            //567PARVEN_source_002_2023.02.2023.png
+        }
+        
+        return $path;
+    }
+
 }

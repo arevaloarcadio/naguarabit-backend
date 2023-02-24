@@ -34,6 +34,7 @@ class Api{
             }
         }
         $resource['error']['message'] = $message;
+        $resource['error']['line'] = $exception->getLine();
         $resource['error']['type']   = 'unknown';
     }
 
